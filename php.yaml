@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: php
+        tier: backend
+    spec:
+      volumes:
+      - name: mountedvolume
+        persistentVolumeClaim:
+          claimName: mountedvolume
+      containers:
+      - name: php
+        image: php:7-fpm
+        volumeMounts:
+        - name: mountedvolume
+          mountPath: /mountedvolume
+      initContainers:
+      - name: install
+        image: busybox
+        volumeMounts:
+        - name: mountedvolume
+          mountPath: /mountedvolume
+        command: ["/bin/sh", "-c"]
+        args:
+          - 'echo "<html><head><title>PHP Hello World!</title></head><body><?php echo \"<h1>Hello World</h1>\"; ?><?php phpinfo(); ?></body></html>" > /mountedvolume/index.php'
+        # command:  ["/bin/sh", "-c", "pwd"]
+        # command: ["cp", "index.php", "/mountedvolume/index.php"]
+        # command:  ["/bin/sh", "-c", "pwd"]
+        # command: ["/bin/sh", "-c", "cp \\index.php /mountedvolume/index.php"]
+        # command:
+        #   - cp
+        #   - "D:/Assesments/iTechArt_Assesments/LVL1/K8s/task2/index.php"
+        #   - "/mountedvolume/index.php"
+        # need somehow get loical file 
+        # Как скопировать файл?
